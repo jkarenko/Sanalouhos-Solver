@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Black">
+    <option name="sdkName" value="Poetry (Sanalouhos-Solver)" />
+  </component>
+  <component name="MarkdownSettings">
+    <option name="hideErrorsInCodeBlocks" value="true" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State />
+          <State>
+            <id>Python</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>Python</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (Sanalouhos-Solver)" project-jdk-type="Python SDK" />
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\j\AppData\Roaming\Subversion</configuration>
+  </component>
+</project>
