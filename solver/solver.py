@@ -73,7 +73,7 @@ def update_visualization(grid, solution):
     img = create_visualization(grid, solution)
     plt.clf()
     plt.imshow(img)
-    plt.title(f"Current solution: {len(solution)} words")
+    plt.title(f"Current solution: {len(solution)} words\nwords: {[word for word, _ in solution]}")
     plt.axis('off')
     plt.draw()
     plt.pause(0.1)
@@ -96,7 +96,9 @@ def solve(grid, words):
         for r in range(rows):
             for c in range(cols):
                 if (r, c) not in used_positions:
+                    tried_words = 0
                     for word in words:
+                        tried_words += 1
                         path = find_word(grid, word, r, c, used_positions)
                         if path:
                             solution.append((word, path))
@@ -111,6 +113,8 @@ def solve(grid, words):
                                 return True
                             used_positions.difference_update(path)
                             solution.pop()
+                            update_visualization(grid, solution)
+                            print(f"Backtracking... {tried_words} words tried")
         return False
 
     backtrack()
