@@ -1,6 +1,6 @@
 from datetime import datetime
-
 from PIL import Image, ImageDraw, ImageFont
+import matplotlib.pyplot as plt
 
 
 def find_word(grid, word, start_row, start_col, used_positions):
@@ -26,33 +26,7 @@ def find_word(grid, word, start_row, start_col, used_positions):
     return None
 
 
-def solve(grid, word):
-    rows, cols = len(grid), len(grid[0])
-    used_positions = set()
-    solution = []
-
-    def backtrack():
-        if len(used_positions) == rows * cols:
-            return True
-
-        for r in range(rows):
-            for c in range(cols):
-                if (r, c) not in used_positions:
-                    path = find_word(grid, word, r, c, used_positions)
-                    if path:
-                        solution.append((word, path))
-                        used_positions.update(path)
-                        if backtrack():
-                            return True
-                        used_positions.difference_update(path)
-                        solution.pop()
-        return False
-
-    backtrack()
-    return solution
-
-
-def visualize_solution(grid, solution):
+def create_visualization(grid, solution):
     cell_size = 100
     padding = 20
     rows, cols = len(grid), len(grid[0])
@@ -78,8 +52,8 @@ def visualize_solution(grid, solution):
 
     # Draw connections
     colors = ["red", "blue", "green", "orange", "purple", "brown", "pink", "cyan", "magenta", "yellow"]
-    for index, solution in enumerate(solution):
-        word, path = solution
+    for index, solution_item in enumerate(solution):
+        word, path = solution_item
         color = colors[index % len(colors)]
         for i in range(len(path) - 1):
             start = path[i]
@@ -90,21 +64,74 @@ def visualize_solution(grid, solution):
             end_y = end[0] * cell_size + padding + cell_size // 2
             draw.line([start_x, start_y, end_x, end_y], fill=color, width=3)
 
-    file_name = f"solution_visualization_{datetime.now().strftime("%Y%m%d_%H%M%S")}.png"
-    image.save(file_name)
-    print(f"Visualization saved as {file_name}")
+    return image
+
+
+def update_visualization(grid, solution):
+    img = create_visualization(grid, solution)
+    plt.clf()
+    plt.imshow(img)
+    plt.title(f"Current solution: {len(solution)} words")
+    plt.axis('off')
+    plt.draw()
+    plt.pause(0.1)
+
+
+def solve(grid, words):
+    rows, cols = len(grid), len(grid[0])
+    used_positions = set()
+    solution = []
+    max_solution_length = 0
+
+    plt.ion()
+    plt.figure(figsize=(10, 10))
+
+    def backtrack():
+        nonlocal max_solution_length
+        if len(used_positions) == rows * cols:
+            return True
+
+        for r in range(rows):
+            for c in range(cols):
+                if (r, c) not in used_positions:
+                    for word in words:
+                        path = find_word(grid, word, r, c, used_positions)
+                        if path:
+                            solution.append((word, path))
+                            used_positions.update(path)
+
+                            if len(solution) > max_solution_length:
+                                max_solution_length = len(solution)
+                                print(f"{max_solution_length} words: {[word for word, _ in solution]}")
+                                update_visualization(grid, solution)
+
+                            if backtrack():
+                                return True
+                            used_positions.difference_update(path)
+                            solution.pop()
+        return False
+
+    backtrack()
+    plt.ioff()
+    plt.show()
+    return solution
 
 
 def read_grid_from_file(file_path):
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf8") as file:
         return [list(line.strip()) for line in file]
+
+
+def read_words_from_file(file_path):
+    with open(file_path, "r", encoding="utf8") as file:
+        return [line.strip() for line in file]
 
 
 def main():
     grid = read_grid_from_file("puzzle.txt")
+    words = read_words_from_file("words.txt")
 
-    word = "cat"
-    result = solve(grid, word)
+    result = solve(grid, words)
 
     print("Solution:")
     for word, path in result:
@@ -112,5 +139,3 @@ def main():
 
     print(f"\nTotal words used: {len(result)}")
     print(f"Total positions covered: {sum(len(path) for _, path in result)}")
-
-    visualize_solution(grid, result)
