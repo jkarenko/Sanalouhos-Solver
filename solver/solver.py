@@ -28,6 +28,38 @@ def find_word(grid, word, start_row, start_col, used_positions):
     return None
 
 
+def check_isolated_letters(grid, used_positions):
+    rows, cols = len(grid), len(grid[0])
+    directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+    def count_connectable_letters(row, col):
+        count = 1
+        visited = set([(row, col)])
+        stack = [(row, col)]
+
+        while stack:
+            r, c = stack.pop()
+            for dr, dc in directions:
+                new_row, new_col = r + dr, c + dc
+                if (0 <= new_row < rows and 0 <= new_col < cols and
+                        (new_row, new_col) not in used_positions and
+                        (new_row, new_col) not in visited):
+                    count += 1
+                    visited.add((new_row, new_col))
+                    stack.append((new_row, new_col))
+
+        return count
+
+    for r in range(rows):
+        for c in range(cols):
+            if (r, c) not in used_positions:
+                connectable_letters = count_connectable_letters(r, c)
+                if 1 <= connectable_letters <= 2:
+                    return False
+
+    return True
+
+
 def create_visualization(grid, solution):
     cell_size = 100
     padding = 20
@@ -104,13 +136,15 @@ def solve(grid, words):
                             solution.append((word, path))
                             used_positions.update(path)
 
-                            if len(solution) > max_solution_length:
-                                max_solution_length = len(solution)
-                                print(f"{max_solution_length} words: {[word for word, _ in solution]}")
-                                update_visualization(grid, solution)
+                            if check_isolated_letters(grid, used_positions):
+                                if len(solution) > max_solution_length:
+                                    max_solution_length = len(solution)
+                                    print(f"{max_solution_length} words: {[word for word, _ in solution]}")
+                                    update_visualization(grid, solution)
 
-                            if backtrack():
-                                return True
+                                if backtrack():
+                                    return True
+
                             used_positions.difference_update(path)
                             solution.pop()
                             update_visualization(grid, solution)
