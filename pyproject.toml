@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["jkarenko <juho.karenko@gmail.com>"]
 readme = "README.md"
+packages = [{include = "solver"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -13,3 +14,6 @@ pillow = "^10.4.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+sanalouhos-solver = "solver.solver:main"

@@ -95,25 +95,22 @@ def visualize_solution(grid, solution):
     print(f"Visualization saved as {file_name}")
 
 
+def read_grid_from_file(file_path):
+    with open(file_path, "r") as file:
+        return [list(line.strip()) for line in file]
 
-# Example usage
-grid = [
-    "catca",
-    "atcat",
-    "tcatc",
-    "catca",
-    "atcat",
-    "tcatc"
-]
 
-word = "cat"
-result = solve(grid, word)
+def main():
+    grid = read_grid_from_file("puzzle.txt")
 
-print("Solution:")
-for word, path in result:
-    print(f"Word: {word}, Path: {path}")
+    word = "cat"
+    result = solve(grid, word)
 
-print(f"\nTotal words used: {len(result)}")
-print(f"Total positions covered: {sum(len(path) for _, path in result)}")
+    print("Solution:")
+    for word, path in result:
+        print(f"Word: {word}, Path: {path}")
 
-visualize_solution(grid, result)
+    print(f"\nTotal words used: {len(result)}")
+    print(f"Total positions covered: {sum(len(path) for _, path in result)}")
+
+    visualize_solution(grid, result)
