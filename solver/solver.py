@@ -1,9 +1,10 @@
-from datetime import datetime
-from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
 import multiprocessing
-from functools import partial
 from collections import defaultdict
+
+import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageFont
+
+from solver.fetch_puzzle import fetch_puzzle
 
 
 class TrieNode:
@@ -34,7 +35,7 @@ class Trie:
 def build_trie(words):
     trie = Trie()
     for word in words:
-        trie.insert(word)
+        trie.insert(word.upper())
     return trie
 
 
@@ -151,11 +152,11 @@ def update_visualization(grid, solution):
 def find_words_sequential(grid, trie, used_positions):
     rows, cols = len(grid), len(grid[0])
     all_positions = [(r, c) for r in range(rows) for c in range(cols) if (r, c) not in used_positions]
-    
+
     results = []
     for r, c in all_positions:
         results.extend(find_words(grid, trie, r, c, used_positions))
-    
+
     return results
 
 
@@ -173,11 +174,11 @@ def find_words_parallel(grid, trie, used_positions):
     rows, cols = len(grid), len(grid[0])
     num_cores = multiprocessing.cpu_count()
     chunk_size = max(1, rows // num_cores)
-    
+
     with multiprocessing.Pool() as pool:
         chunks = [(grid, trie, used_positions, i, i + chunk_size) for i in range(0, rows, chunk_size)]
         results = pool.starmap(process_chunk, chunks)
-    
+
     return [word for sublist in results for word in sublist]
 
 
@@ -231,7 +232,7 @@ def solve(grid, words, use_parallel=True):
             used_positions.difference_update(path)
             solution.pop()
             update_visualization(grid, solution)
-        
+
         print(f"Backtracking... {len(found_words)} words tried")
         return False
 
@@ -243,7 +244,7 @@ def solve(grid, words, use_parallel=True):
 
 def read_grid_from_file(file_path):
     with open(file_path, "r", encoding="utf8") as file:
-        return [list(line.strip()) for line in file]
+        return [list(line.strip().upper()) for line in file]
 
 
 def read_words_from_file(file_path):
@@ -252,7 +253,9 @@ def read_words_from_file(file_path):
 
 
 def main():
-    grid = read_grid_from_file("puzzle.txt")
+    # grid = read_grid_from_file("puzzle.txt")
+    grid = fetch_puzzle()
+    print(f"Grid: {grid}")
     words = read_words_from_file("words.txt")
 
     use_parallel = False

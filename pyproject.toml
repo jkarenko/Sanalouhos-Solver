@@ -10,6 +10,10 @@ packages = [{include = "solver"}]
 python = "^3.12"
 pillow = "^10.4.0"
 matplotlib = "^3.9.2"
+requests = "^2.32.3"
+beautifulsoup4 = "^4.12.3"
+selenium = "^4.24.0"
+browser-cookie3 = "^0.19.1"
 
 
 [build-system]
