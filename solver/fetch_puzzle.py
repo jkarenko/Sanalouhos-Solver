@@ -26,8 +26,11 @@ def fetch_puzzle():
 
 
 def _fetch_puzzle(driver, url):
-    # Load cookies from Chrome
-    cookies = browser_cookie3.chrome(domain_name='.hs.fi')
+    try:
+        cookies = browser_cookie3.chrome(domain_name='.hs.fi')
+    except PermissionError:
+        print("Unable to access Chrome cookies. Proceeding without cookies.")
+        cookies = []
 
     driver.get(url)
 
