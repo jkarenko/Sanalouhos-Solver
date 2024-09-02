@@ -159,6 +159,17 @@ def find_words_parallel(grid, trie, used_positions):
     return [word for sublist in results for word in sublist]
 
 
+def can_form_valid_words(grid, trie, used_positions):
+    rows, cols = len(grid), len(grid[0])
+    for r in range(rows):
+        for c in range(cols):
+            if (r, c) not in used_positions:
+                char = grid[r][c]
+                if not trie.search_prefix(char):
+                    return False
+    return True
+
+
 def solve(grid, words):
     rows, cols = len(grid), len(grid[0])
     used_positions = set()
@@ -176,11 +187,13 @@ def solve(grid, words):
             return True
 
         found_words = find_words_parallel(grid, trie, used_positions)
+        found_words.sort(key=lambda x: len(x[1]), reverse=True)  # Prioritize longer words
+
         for word, path in found_words:
             solution.append((word, path))
             used_positions.update(path)
 
-            if check_isolated_letters(grid, used_positions):
+            if check_isolated_letters(grid, used_positions) and can_form_valid_words(grid, trie, used_positions):
                 if len(solution) > max_solution_length:
                     max_solution_length = len(solution)
                     print(f"{max_solution_length} words: {[word for word, _ in solution]}")
@@ -192,6 +205,7 @@ def solve(grid, words):
             used_positions.difference_update(path)
             solution.pop()
             update_visualization(grid, solution)
+        
         print(f"Backtracking... {len(found_words)} words tried")
         return False
 
