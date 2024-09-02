@@ -274,4 +274,3 @@ def main_custom_puzzle():
 if __name__ == '__main__':
     multiprocessing.freeze_support()  # This line is necessary for Windows compatibility
     main()
-    print("Script execution completed")
