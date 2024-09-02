@@ -112,16 +112,6 @@ def create_visualization(grid, solution):
         font = ImageFont.truetype("arial.ttf", 36)
     except IOError:
         font = ImageFont.load_default()
-
-    # Draw grid
-    for r in range(rows):
-        for c in range(cols):
-            x = c * cell_size + padding
-            y = r * cell_size + padding
-            draw.rectangle([x, y, x + cell_size, y + cell_size], outline="black")
-            draw.text((x + cell_size // 2, y + cell_size // 2), grid[r][c],
-                      fill="black", font=font, anchor="mm")
-
     # Draw connections
     colors = ["red", "blue", "green", "orange", "purple", "brown", "pink", "cyan", "magenta", "yellow"]
     for index, solution_item in enumerate(solution):
@@ -135,6 +125,17 @@ def create_visualization(grid, solution):
             end_x = end[1] * cell_size + padding + cell_size // 2
             end_y = end[0] * cell_size + padding + cell_size // 2
             draw.line([start_x, start_y, end_x, end_y], fill=color, width=3)
+            if i == 0:
+                draw.circle([start_x, start_y], 20, fill=color)
+
+    # Draw grid
+    for r in range(rows):
+        for c in range(cols):
+            x = c * cell_size + padding
+            y = r * cell_size + padding
+            draw.rectangle([x, y, x + cell_size, y + cell_size], outline="black")
+            draw.text((x + cell_size // 2, y + cell_size // 2), grid[r][c],
+                      fill="black", font=font, anchor="mm")
 
     return image
 
