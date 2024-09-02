@@ -252,9 +252,8 @@ def read_words_from_file(file_path):
         return [line.strip() for line in file]
 
 
-def main():
-    # grid = read_grid_from_file("puzzle.txt")
-    grid = fetch_puzzle()
+def main(custom_puzzle=False):
+    grid = read_grid_from_file("puzzle.txt") if custom_puzzle else fetch_puzzle()
     print(f"Grid: {grid}")
     words = read_words_from_file("words.txt")
 
