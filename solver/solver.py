@@ -148,6 +148,17 @@ def update_visualization(grid, solution):
     plt.pause(0.1)
 
 
+def find_words_sequential(grid, trie, used_positions):
+    rows, cols = len(grid), len(grid[0])
+    all_positions = [(r, c) for r in range(rows) for c in range(cols) if (r, c) not in used_positions]
+    
+    results = []
+    for r, c in all_positions:
+        results.extend(find_words(grid, trie, r, c, used_positions))
+    
+    return results
+
+
 def find_words_parallel(grid, trie, used_positions):
     rows, cols = len(grid), len(grid[0])
     all_positions = [(r, c) for r in range(rows) for c in range(cols) if (r, c) not in used_positions]
@@ -170,7 +181,7 @@ def can_form_valid_words(grid, trie, used_positions):
     return True
 
 
-def solve(grid, words):
+def solve(grid, words, use_parallel=True):
     rows, cols = len(grid), len(grid[0])
     used_positions = set()
     solution = []
@@ -186,7 +197,11 @@ def solve(grid, words):
         if len(used_positions) == rows * cols:
             return True
 
-        found_words = find_words_parallel(grid, trie, used_positions)
+        if use_parallel:
+            found_words = find_words_parallel(grid, trie, used_positions)
+        else:
+            found_words = find_words_sequential(grid, trie, used_positions)
+
         found_words.sort(key=lambda x: len(x[1]), reverse=True)  # Prioritize longer words
 
         for word, path in found_words:
@@ -229,7 +244,8 @@ def main():
     grid = read_grid_from_file("puzzle.txt")
     words = read_words_from_file("words.txt")
 
-    result = solve(grid, words)
+    use_parallel = False
+    result = solve(grid, words, use_parallel)
 
     print("Solution:")
     for word, path in result:
