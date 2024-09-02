@@ -12,6 +12,8 @@ poetry install
 
 ### Solve the current puzzle
 
+Visit https://sanalouhos.datadesk.hs.fi with your Google Chrome browser and accept cookies - we're nice here. Then run:
+
 ```bash
 poetry run sanalouhos-solver
 ```
