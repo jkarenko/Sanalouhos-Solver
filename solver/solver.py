@@ -1,7 +1,8 @@
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
-
+import multiprocessing
+from functools import partial
 from collections import defaultdict
 
 
@@ -147,6 +148,17 @@ def update_visualization(grid, solution):
     plt.pause(0.1)
 
 
+def find_words_parallel(grid, trie, used_positions):
+    rows, cols = len(grid), len(grid[0])
+    all_positions = [(r, c) for r in range(rows) for c in range(cols) if (r, c) not in used_positions]
+    
+    with multiprocessing.Pool() as pool:
+        find_words_partial = partial(find_words, grid, trie, used_positions=used_positions)
+        results = pool.starmap(find_words_partial, [(r, c) for r, c in all_positions])
+    
+    return [word for sublist in results for word in sublist]
+
+
 def solve(grid, words):
     rows, cols = len(grid), len(grid[0])
     used_positions = set()
@@ -163,27 +175,24 @@ def solve(grid, words):
         if len(used_positions) == rows * cols:
             return True
 
-        for r in range(rows):
-            for c in range(cols):
-                if (r, c) not in used_positions:
-                    found_words = find_words(grid, trie, r, c, used_positions)
-                    for word, path in found_words:
-                        solution.append((word, path))
-                        used_positions.update(path)
+        found_words = find_words_parallel(grid, trie, used_positions)
+        for word, path in found_words:
+            solution.append((word, path))
+            used_positions.update(path)
 
-                        if check_isolated_letters(grid, used_positions):
-                            if len(solution) > max_solution_length:
-                                max_solution_length = len(solution)
-                                print(f"{max_solution_length} words: {[word for word, _ in solution]}")
-                                update_visualization(grid, solution)
+            if check_isolated_letters(grid, used_positions):
+                if len(solution) > max_solution_length:
+                    max_solution_length = len(solution)
+                    print(f"{max_solution_length} words: {[word for word, _ in solution]}")
+                    update_visualization(grid, solution)
 
-                            if backtrack():
-                                return True
+                if backtrack():
+                    return True
 
-                        used_positions.difference_update(path)
-                        solution.pop()
-                        update_visualization(grid, solution)
-                    print(f"Backtracking... {len(found_words)} words tried")
+            used_positions.difference_update(path)
+            solution.pop()
+            update_visualization(grid, solution)
+        print(f"Backtracking... {len(found_words)} words tried")
         return False
 
     backtrack()
@@ -214,3 +223,8 @@ def main():
 
     print(f"\nTotal words used: {len(result)}")
     print(f"Total positions covered: {sum(len(path) for _, path in result)}")
+
+
+if __name__ == '__main__':
+    multiprocessing.freeze_support()  # This line is necessary for Windows compatibility
+    main()
