@@ -159,13 +159,24 @@ def find_words_sequential(grid, trie, used_positions):
     return results
 
 
+def process_chunk(grid, trie, used_positions, start_row, end_row):
+    rows, cols = len(grid), len(grid[0])
+    results = []
+    for r in range(start_row, min(end_row, rows)):
+        for c in range(cols):
+            if (r, c) not in used_positions:
+                results.extend(find_words(grid, trie, r, c, used_positions))
+    return results
+
+
 def find_words_parallel(grid, trie, used_positions):
     rows, cols = len(grid), len(grid[0])
-    all_positions = [(r, c) for r in range(rows) for c in range(cols) if (r, c) not in used_positions]
+    num_cores = multiprocessing.cpu_count()
+    chunk_size = max(1, rows // num_cores)
     
     with multiprocessing.Pool() as pool:
-        find_words_partial = partial(find_words, grid, trie, used_positions=used_positions)
-        results = pool.starmap(find_words_partial, [(r, c) for r, c in all_positions])
+        chunks = [(grid, trie, used_positions, i, i + chunk_size) for i in range(0, rows, chunk_size)]
+        results = pool.starmap(process_chunk, chunks)
     
     return [word for sublist in results for word in sublist]
 
