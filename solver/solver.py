@@ -2,30 +2,66 @@ from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
+from collections import defaultdict
 
-def find_word(grid, word, start_row, start_col, used_positions):
+
+class TrieNode:
+    def __init__(self):
+        self.children = defaultdict(TrieNode)
+        self.is_word = False
+
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for char in word:
+            node = node.children[char]
+        node.is_word = True
+
+    def search_prefix(self, prefix):
+        node = self.root
+        for char in prefix:
+            if char not in node.children:
+                return False
+            node = node.children[char]
+        return node
+
+
+def build_trie(words):
+    trie = Trie()
+    for word in words:
+        trie.insert(word)
+    return trie
+
+
+def find_words(grid, trie, start_row, start_col, used_positions):
     rows, cols = len(grid), len(grid[0])
     directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    found_words = []
 
-    def dfs(row, col, index, path):
-        if index == len(word):
-            return path
+    def dfs(row, col, node, path, current_word):
+        if node.is_word and len(current_word) > 1:
+            found_words.append((current_word, path[:]))
 
         for dr, dc in directions:
             new_row, new_col = row + dr, col + dc
             if (0 <= new_row < rows and 0 <= new_col < cols and
-                    grid[new_row][new_col] == word[index] and
                     (new_row, new_col) not in used_positions and
                     (new_row, new_col) not in path):
-                new_path = path + [(new_row, new_col)]
-                result = dfs(new_row, new_col, index + 1, new_path)
-                if result:
-                    return result
-        return None
+                char = grid[new_row][new_col]
+                if char in node.children:
+                    new_path = path + [(new_row, new_col)]
+                    dfs(new_row, new_col, node.children[char], new_path, current_word + char)
 
-    if grid[start_row][start_col] == word[0]:
-        return dfs(start_row, start_col, 1, [(start_row, start_col)])
-    return None
+    start_char = grid[start_row][start_col]
+    start_node = trie.search_prefix(start_char)
+    if start_node:
+        dfs(start_row, start_col, start_node, [(start_row, start_col)], start_char)
+
+    return found_words
 
 
 def check_isolated_letters(grid, used_positions):
@@ -117,6 +153,8 @@ def solve(grid, words):
     solution = []
     max_solution_length = 0
 
+    trie = build_trie(words)
+
     plt.ion()
     plt.figure(figsize=(10, 10))
 
@@ -128,27 +166,24 @@ def solve(grid, words):
         for r in range(rows):
             for c in range(cols):
                 if (r, c) not in used_positions:
-                    tried_words = 0
-                    for word in words:
-                        tried_words += 1
-                        path = find_word(grid, word, r, c, used_positions)
-                        if path:
-                            solution.append((word, path))
-                            used_positions.update(path)
+                    found_words = find_words(grid, trie, r, c, used_positions)
+                    for word, path in found_words:
+                        solution.append((word, path))
+                        used_positions.update(path)
 
-                            if check_isolated_letters(grid, used_positions):
-                                if len(solution) > max_solution_length:
-                                    max_solution_length = len(solution)
-                                    print(f"{max_solution_length} words: {[word for word, _ in solution]}")
-                                    update_visualization(grid, solution)
+                        if check_isolated_letters(grid, used_positions):
+                            if len(solution) > max_solution_length:
+                                max_solution_length = len(solution)
+                                print(f"{max_solution_length} words: {[word for word, _ in solution]}")
+                                update_visualization(grid, solution)
 
-                                if backtrack():
-                                    return True
+                            if backtrack():
+                                return True
 
-                            used_positions.difference_update(path)
-                            solution.pop()
-                            update_visualization(grid, solution)
-                            print(f"Backtracking... {tried_words} words tried")
+                        used_positions.difference_update(path)
+                        solution.pop()
+                        update_visualization(grid, solution)
+                    print(f"Backtracking... {len(found_words)} words tried")
         return False
 
     backtrack()
