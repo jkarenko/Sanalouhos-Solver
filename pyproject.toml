@@ -22,4 +22,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 sanalouhos-solver = "solver.solver:main"
-sanalouhos-solver-custom = "solver.solver:main(custom_puzzle=True)"
+sanalouhos-solver-custom = "solver.solver:main_custom_puzzle"

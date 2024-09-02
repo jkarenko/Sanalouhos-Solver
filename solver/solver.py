@@ -1,3 +1,4 @@
+import itertools
 import multiprocessing
 from collections import defaultdict
 
@@ -72,7 +73,7 @@ def check_isolated_letters(grid, used_positions):
 
     def count_connectable_letters(row, col):
         count = 1
-        visited = set([(row, col)])
+        visited = {(row, col)}
         stack = [(row, col)]
 
         while stack:
@@ -129,13 +130,12 @@ def create_visualization(grid, solution):
                 draw.circle([start_x, start_y], 20, fill=color)
 
     # Draw grid
-    for r in range(rows):
-        for c in range(cols):
-            x = c * cell_size + padding
-            y = r * cell_size + padding
-            draw.rectangle([x, y, x + cell_size, y + cell_size], outline="black")
-            draw.text((x + cell_size // 2, y + cell_size // 2), grid[r][c],
-                      fill="black", font=font, anchor="mm")
+    for r, c in itertools.product(range(rows), range(cols)):
+        x = c * cell_size + padding
+        y = r * cell_size + padding
+        draw.rectangle([x, y, x + cell_size, y + cell_size], outline="black")
+        draw.text((x + cell_size // 2, y + cell_size // 2), grid[r][c],
+                  fill="black", font=font, anchor="mm")
 
     return image
 
@@ -164,10 +164,9 @@ def find_words_sequential(grid, trie, used_positions):
 def process_chunk(grid, trie, used_positions, start_row, end_row):
     rows, cols = len(grid), len(grid[0])
     results = []
-    for r in range(start_row, min(end_row, rows)):
-        for c in range(cols):
-            if (r, c) not in used_positions:
-                results.extend(find_words(grid, trie, r, c, used_positions))
+    for r, c in itertools.product(range(start_row, min(end_row, rows)), range(cols)):
+        if (r, c) not in used_positions:
+            results.extend(find_words(grid, trie, r, c, used_positions))
     return results
 
 
@@ -185,12 +184,11 @@ def find_words_parallel(grid, trie, used_positions):
 
 def can_form_valid_words(grid, trie, used_positions):
     rows, cols = len(grid), len(grid[0])
-    for r in range(rows):
-        for c in range(cols):
-            if (r, c) not in used_positions:
-                char = grid[r][c]
-                if not trie.search_prefix(char):
-                    return False
+    for r, c in itertools.product(range(rows), range(cols)):
+        if (r, c) not in used_positions:
+            char = grid[r][c]
+            if not trie.search_prefix(char):
+                return False
     return True
 
 
@@ -269,6 +267,11 @@ def main(custom_puzzle=False):
     print(f"Total positions covered: {sum(len(path) for _, path in result)}")
 
 
+def main_custom_puzzle():
+    main(custom_puzzle=True)
+
+
 if __name__ == '__main__':
     multiprocessing.freeze_support()  # This line is necessary for Windows compatibility
     main()
+    print("Script execution completed")
