@@ -12621,7 +12621,6 @@ hetkuttaa
 hetkutus
 hetteikkö
 hetteinen
-hetu
 hetula
 hetulavalas
 heuristiikka
