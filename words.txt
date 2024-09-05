@@ -18814,10 +18814,6 @@ jess
 jessus
 jestas
 jesuiitta
-jesuiittaluostari
-jesuiittamainen
-jesuiittamunkki
-jesuiittaveljestö
 jeti
 jetsetti
 jetsulleen
@@ -18826,7 +18822,6 @@ jiddi
 jiddiš
 jigaus
 jigi
-jigikalastus
 jihad
 jihadismi
 jihadisti
@@ -18834,7 +18829,6 @@ jihadistinen
 jiippi
 jiirata
 jiiri
-jin
 jipii
 jippii
 jippo
@@ -18843,17 +18837,11 @@ jippoilu
 jiujitsu
 jive
 jobbari
-jobinposti
 jockey
 jodi
 jodidi
-jodihappo
 jodioida
-jodipitoinen
-jodisprii
-jodisuola
 jodittaa
-jodivetyhappo
 jodlata
 jodlaus
 joenhaara
@@ -38940,7 +38928,6 @@ lettu
 lettupannu
 lettutaikina
 letukka
-leu
 leuanalus
 leuanalusta
 leuankärki
@@ -89399,7 +89386,6 @@ tädittely
 tädyke
 tägi
 tägätä
-täh
 tähde
 tähdekäs
 tähdelle
@@ -90289,7 +90275,6 @@ uljas
 uljasryhtinen
 uljaus
 uljuus
-ulko
 ulkoa
 ulkoantenni
 ulkoapäin
