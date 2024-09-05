@@ -161,27 +161,6 @@ def find_words_sequential(grid, trie, used_positions):
     return results
 
 
-def process_chunk(grid, trie, used_positions, start_row, end_row):
-    rows, cols = len(grid), len(grid[0])
-    results = []
-    for r, c in itertools.product(range(start_row, min(end_row, rows)), range(cols)):
-        if (r, c) not in used_positions:
-            results.extend(find_words(grid, trie, r, c, used_positions))
-    return results
-
-
-def find_words_parallel(grid, trie, used_positions):
-    rows, cols = len(grid), len(grid[0])
-    num_cores = multiprocessing.cpu_count()
-    chunk_size = max(1, rows // num_cores)
-
-    with multiprocessing.Pool() as pool:
-        chunks = [(grid, trie, used_positions, i, i + chunk_size) for i in range(0, rows, chunk_size)]
-        results = pool.starmap(process_chunk, chunks)
-
-    return [word for sublist in results for word in sublist]
-
-
 def can_form_valid_words(grid, trie, used_positions):
     rows, cols = len(grid), len(grid[0])
     for r, c in itertools.product(range(rows), range(cols)):
@@ -192,7 +171,7 @@ def can_form_valid_words(grid, trie, used_positions):
     return True
 
 
-def solve(grid, words, use_parallel=True):
+def solve(grid, words):
     rows, cols = len(grid), len(grid[0])
     used_positions = set()
     solution = []
@@ -207,33 +186,33 @@ def solve(grid, words, use_parallel=True):
         nonlocal max_solution_length
         if len(used_positions) == rows * cols:
             return True
-
-        if use_parallel:
-            found_words = find_words_parallel(grid, trie, used_positions)
-        else:
+        
+        try:
             found_words = find_words_sequential(grid, trie, used_positions)
 
-        found_words.sort(key=lambda x: len(x[1]), reverse=True)  # Prioritize longer words
+            found_words.sort(key=lambda x: len(x[1]), reverse=True)  # Prioritize longer words
 
-        for word, path in found_words:
-            solution.append((word, path))
-            used_positions.update(path)
+            for word, path in found_words:
+                solution.append((word, path))
+                used_positions.update(path)
 
-            if check_isolated_letters(grid, used_positions) and can_form_valid_words(grid, trie, used_positions):
-                if len(solution) > max_solution_length:
-                    max_solution_length = len(solution)
-                    print(f"{max_solution_length} words: {[word for word, _ in solution]}")
-                    update_visualization(grid, solution)
+                if check_isolated_letters(grid, used_positions) and can_form_valid_words(grid, trie, used_positions):
+                    if len(solution) > max_solution_length:
+                        max_solution_length = len(solution)
+                        print(f"{max_solution_length} words: {[word for word, _ in solution]}")
+                        update_visualization(grid, solution)
+                        print(f"Path: {path}")
 
-                if backtrack():
-                    return True
+                    if backtrack():
+                        return True
 
-            used_positions.difference_update(path)
-            solution.pop()
-            update_visualization(grid, solution)
-
-        print(f"Backtracking... {len(found_words)} words tried")
-        return False
+                used_positions.difference_update(path)
+                solution.pop()
+            # print(f"Backtracking... {len(found_words)} words tried")
+            return False
+        except KeyboardInterrupt:
+            print("\nSolving interrupted by user. Returning current solution...")
+            return True
 
     backtrack()
     plt.ioff()
@@ -256,8 +235,7 @@ def main(custom_puzzle=False):
     print(f"Grid: {grid}")
     words = read_words_from_file("words.txt")
 
-    use_parallel = False
-    result = solve(grid, words, use_parallel)
+    result = solve(grid, words)
 
     print("Solution:")
     for word, path in result:
