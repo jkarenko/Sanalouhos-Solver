@@ -190,25 +190,32 @@ def solve(grid, words):
         try:
             found_words = find_words_sequential(grid, trie, used_positions)
 
-            found_words.sort(key=lambda x: len(x[1]), reverse=True)  # Prioritize longer words
-
+            # Group words by their actual word, keeping all possible paths
+            word_groups = defaultdict(list)
             for word, path in found_words:
-                solution.append((word, path))
-                used_positions.update(path)
+                word_groups[word].append(path)
 
-                if check_isolated_letters(grid, used_positions) and can_form_valid_words(grid, trie, used_positions):
-                    if len(solution) > max_solution_length:
-                        max_solution_length = len(solution)
-                        print(f"{max_solution_length} words: {[word for word, _ in solution]}")
-                        update_visualization(grid, solution)
-                        print(f"Path: {path}")
+            # Sort words by length, but consider all paths for each word
+            sorted_words = sorted(word_groups.items(), key=lambda x: len(x[1][0]), reverse=True)
 
-                    if backtrack():
-                        return True
+            for word, paths in sorted_words:
+                for path in paths:
+                    solution.append((word, path))
+                    used_positions.update(path)
 
-                used_positions.difference_update(path)
-                solution.pop()
-            # print(f"Backtracking... {len(found_words)} words tried")
+                    if check_isolated_letters(grid, used_positions) and can_form_valid_words(grid, trie, used_positions):
+                        if len(solution) > max_solution_length:
+                            max_solution_length = len(solution)
+                            print(f"{max_solution_length} words: {[word for word, _ in solution]}")
+                            update_visualization(grid, solution)
+                            print(f"Path: {path}")
+
+                        if backtrack():
+                            return True
+
+                    used_positions.difference_update(path)
+                    solution.pop()
+
             return False
         except KeyboardInterrupt:
             print("\nSolving interrupted by user. Returning current solution...")
