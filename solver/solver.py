@@ -199,7 +199,9 @@ def solve(grid, words):
             sorted_words = sorted(word_groups.items(), key=lambda x: len(x[1][0]), reverse=True)
 
             for word, paths in sorted_words:
-                for path in paths:
+                print(f"Trying word: {word} with {len(paths)} different paths")
+                for i, path in enumerate(paths):
+                    print(f"  Trying path {i+1}/{len(paths)} for word: {word}")
                     solution.append((word, path))
                     used_positions.update(path)
 
